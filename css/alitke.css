@@ -1,0 +1,14 @@
+.reveal .slides .header{
+    position:absolute;
+    top: -50%;
+    left: -50%;
+  }
+.reveal .slides .footer{
+  position:absolute;
+  bottom: 0%;
+  left: 50%;
+}
+
+html.dimbg .slide-background.present {
+  opacity: 0.3;
+}  

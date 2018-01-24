@@ -1,49 +1,364 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+        <title>Black Blocks: Kubernetes, meet OpenStack Cinder</title>
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/black.css">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/alitke.css">
+        <link rel="stylesheet" href="css/theme/white.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section data-background="images/ocean.jpg" data-state="dimbg">
+                    <h2>Black Blocks</h2>
+                    <h4>Kubernetes, meet OpenStack Cinder</h4>
+                    <p>
+                        <small>
+                            Adam Litke - <a href=mailto:alitke@redhat.com>alitke@redhat.com</a><br>
+                            Principle Software Engineer - Red Hat<br>
+                            FOSDEM 2018 - 04 February 2018
+                        </small>
+                    </p>
+                </section>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-				dependencies: [
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
-			});
-		</script>
-	</body>
+                <section data-background="images/ocean.jpg" data-state="dimbg">
+                    <h2>Why Persistent Storage?</h2>
+                    <ul>
+                        <li>Containers are ephemeral</li>
+                        <li>Start with state (ie. data analytics)</li>
+                        <li>Share data between pods</li>
+                        <li>Keep results after termination (ie. database)</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/ocean.jpg" data-state="dimbg">
+                    <h2>Storage in kubernetes</h2>
+                    <ul>
+                        <li>Operator pattern</li>
+                        <li>Self service</li>
+                        <li>Modular and extensible</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/tahiti.jpg" data-state="dimbg">
+                    <h2>Kubernetes Volume Types</h2>
+                    <ul>
+                        <li>Cloud Provider: based on the hosting cloud<ul>
+                            <li>AWS, Azure, GCE, and Cinder</li>
+                        </ul></li>
+                        <li>Software Defined Storage:<ul>
+                            <li>Ceph, Gluster, ScaleIO, StorageOS</li>
+                        </ul></li>
+                        <li>Raw: Direct references to existing storage<ul>
+                            <li>ISCSI, FibreChannel, NFS</li>
+                        </ul></li>
+                        <li>More via FlexVolume and CSI</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/brick-types.jpg" data-state="dimbg">
+                    <h2>Storage Classes</h2>
+                    <ul>
+                        <li>Provide a way to classify available storage<ul>
+                            <li>QoS: Fast SSDs Vs. Slow HDDs</li>
+                            <li>Volume Type: Cloud Vs. On-Prem</li>
+                            <li>Any arbitrary policy</li>
+                        </ul></li>
+                        <li>Reclaim Policy: How to handle discarded volumes</li>
+                        <li>Provisioner: How are volumes created / deleted</li>
+                        <li>Parameters: Describe volume properties or behavior</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/trowel.jpg" data-state="dimbg">
+                    <h2>Kubernetes Storage Objects</h2>
+                    <ul>
+                        <li>Storage is independent of Pod lifecycle</li>
+                        <li>Persistent Volumes (PVs)<ul>
+                            <li>Global object representing a unit of storage</li>
+                        </ul></li>
+                        <li>Persistent Volume Claims (PVCs)<ul>
+                            <li>Namespaced object used to request storage</li>
+                        </ul></li>
+                        <li>A request is granted by binding a PVC to a PV</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/kiln.png" data-state="dimbg">
+                    <h2>Dynamic provisioning</h2>
+                    <ul>
+                        <li>Self-service volume creation and deletion</li>
+                        <li>Configured per Storage Class</li>
+                        <li>Dynamic provisioner<ul>
+                            <li>Watches PVCs in a Storage Class</li>
+                            <li>Provisions a volume of the requested size</li>
+                            <li>New PV is bound to the PVC</li>
+                            <li>On PVC deletion PV handled per reclaim policy</li>
+                        </ul></li>
+                    </ul>
+                </section>
+
+                <section data-background="images/container-ship.jpg" data-state="dimbg">
+                    <h2>Trends and Requests</h2>
+                    <ul>
+                        <li>Hybrid storage environments</li>
+                        <li>File-mode and Block-mode</li>
+                        <li>Snapshots, cloning, resize</li>
+                        <li>QoS and metrics</li>
+                        <li>Vendor-optimized drivers</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <h2>Cinder</h2>
+                    <ul>
+                        <li>Mature and stable API</li>
+                        <li>Create, delete, attach, detach, snapshot, clone</li>
+                        <li>Migration, backup, QoS, consistency groups, and more</li>
+                        <li>70+ vendor drivers and CI infrastructure</li>
+                        <li>Active community of 500+ contributors</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <h2>Block Storage as a Service</h2>
+                    <ol>
+                        <li>Deploy cinder</li>
+                        <li>Create storage class</li>
+                        <li>Deploy cinder provisioner</li>
+                    </ol>
+                </section>
+                
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <h2>Block Storage as a Service</h2>
+                    <img src="images/bsaas.svg" class="plain" style="width:80%"/>
+                </section>
+                
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <section>
+                        <!-- TODO: Diagram -->
+                        <h2>Provision Volume</h2>
+                        <ol>
+                            <li>User creates PVC</li>
+                            <li>Provisioner creates cinder volume</li>
+                            <li>Provisioner connects cinder volume</li>
+                            <li>Provisioner creates PV object</li>
+                            <li>Kubelet binds PVC to PV</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2>User: create PVC</h2>
+                        <pre><code data-trim data-noescape>
+                            kind: PersistentVolumeClaim
+                            apiVersion: v1
+                            metadata:
+                              name: test-claim
+                            spec:
+                              storageClassName: standalone-cinder
+                              accessModes:
+                                - ReadWriteOnce
+                              resources:
+                                requests:
+                                  storage: 1Gi
+                        </code></pre>
+                    </section>		
+                    <section>
+                        <h2>Provisioner: create volume</h2>
+                        <pre><code data-trim>
+                            options := volumes_v2.CreateOpts{
+                                Name:             name,
+                                Size:             sizeGB,
+                                VolumeType:       volType,
+                                AvailabilityZone: availability,
+                                SourceVolID:      sourceVolID,
+                            }
+                            vol, err := volumes_v2.Create(vs, &options).Extract()
+                        </code></pre>
+                                
+                    </section>
+                    <section>
+                        <h2>Provisioner: Get connection</h2>
+                        <pre><code data-trim>
+                            var conn volumeConnection
+                            err := volumeactions.InitializeConnection(vs, volumeID, &opt).ExtractInto(&conn)
+
+                            struct {                                       
+                                VolumeID: "ff7b41e1-09ab-4502-b672-e490378183e2",
+                                Name: "cinder-dynamic-pvc-3f025a35-ffe4-11e7-a6aa-525400e1c724",
+                                AuthMethod: "CHAP",
+                                AuthUsername: "jhd9NXVedRvR5M5r8ybC",
+                                AuthPassword: "3H7eXNWDzPzqPBdS",                                
+                                TargetPortal: "192.168.122.221:3260",
+                                TargetIqn: "iqn.2010-10.org.openstack:volume-ff7b41e1-09ab-4502-b672-e490378183e2",
+                                TargetLun: 0
+                            }                       
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Provisioner: create PV</h2>
+                        <pre><code data-trim>
+                                kind: PersistentVolume
+                                metadata:
+                                  annotations:
+                                    cinderVolumeId: ff7b41e1-09ab-4502-b672-e490378183e2
+                                    pv.kubernetes.io/provisioned-by: openstack.org/standalone-cinder
+                                  name: pvc-3efe2d9c-ffe4-11e7-9d5b-525400e1c724
+                                spec:
+                                  accessModes:
+                                  - ReadWriteOnce
+                                  capacity:
+                                    storage: 1Gi
+                                  claimRef:
+                                    kind: PersistentVolumeClaim
+                                    name: test-claim
+                                    namespace: default
+                                  iscsi:
+                                    chapAuthSession: true
+                                    iqn: iqn.2010-10.org.openstack:volume-ff7b41e1-09ab-4502-b672-e490378183e2
+                                    iscsiInterface: default
+                                    lun: 0
+                                    secretRef:
+                                      name: pvc-3efe2d9c-ffe4-11e7-9d5b-525400e1c724-secret
+                                    targetPortal: 192.168.122.221:3260
+                                  persistentVolumeReclaimPolicy: Delete
+                                  storageClassName: standalone-cinder
+                                status:
+                                  phase: Bound
+                        </code></pre>
+                    </section>
+                </section>
+                
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <section>
+                        <h2>Consume Volume</h2>
+                        <ol>
+                            <li>User creates Pod</li>
+                            <li>Kubelet attaches and mounts volume</li>
+                            <li>Kubelet starts pod</li>
+                            <li>User deletes Pod</li>
+                            <li>Kubelet unmounts and detaches volume</li>
+                        </ol>
+                        <p><em>Note that cinder is not involved</em></p>
+                    </section>
+
+                    <section>
+                        <h2>User: Create Pod</h2>
+                        <pre><code data-trim>
+                                kind: Pod
+                                metadata:
+                                  name: demo
+                                spec:
+                                  containers:
+                                  - name: demo
+                                    image: alpine:latest
+                                    volumeMounts:
+                                    - name: data
+                                      mountPath: /storage
+                                  volumes:
+                                  - name: data
+                                    persistentVolumeClaim:
+                                      claimName: test-claim                                
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <h2>Kubelet attaches volume</h2>
+                        <pre><code data-trim>
+                            $ sudo iscsiadm -m session
+                            tcp: [3] 192.168.122.221:3260,1 iqn.2010-10.org.openstack:\
+                                volume-c1aa5a52-8aef-4e2f-8dfa-5edea788568a (non-flash)
+
+                            $ mount | grep kubelet/pods
+                            /dev/sda on /var/lib/kubelet/pods/0673fee0-ffc4-11e7-9d5b-525400e1c724/ \
+                                volumes/kubernetes.io~iscsi/pvc-1c8961d3-ffc3-11e7-9d5b-525400e1c724 \
+                                type ext4 (rw,relatime,seclabel,stripe=16,data=ordered)
+                        </code></pre>
+                    </section>
+                </section>
+
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <section>
+                        <h2>Delete Volume</h2>
+                        <ol>
+                            <li>User deletes PVC</li>
+                            <li>Provisioner deletes cinder volume</li>
+                            <li>Kubelet removes PV</li>
+                        </ol>
+                    </section>
+                </section>
+
+                <section data-background-video="images/mario.mp4" data-background-video-loop="false" data-background-video-muted="true">
+                    <h2>Live demo!</h2>
+                </section>
+
+                <section data-background="images/cinder-blocks.jpg" data-state="dimbg">
+                    <h2>Advantages</h2>
+                    <ul>
+                        <li>Dynamic provisioning</li>
+                        <li>Vendor abstraction</li>
+                        <li>Efficient storage operations</li>
+                        <li>Snapshots and cloning</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/sunrise.jpg" data-state="dimbg">
+                    <h2>TBD</h2>
+                    <ul>
+                        <li>Cinder deployment and reconfiguration</li>
+                        <li>Should vendors focus on cinder or native kubernetes? Both?</li>
+                        <li>CSI: The next generation kubernetes storage API</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/sunrise.jpg" data-state="dimbg">
+                    <h2>Future Work</h2>
+                    <ul>
+                        <li>Fibre Channel support</li>
+                        <li>Provision existing cinder volumes</li>
+                        <li>Clone existing cinder volumes</li>
+                    </ul>
+                </section>
+
+                <section data-background="images/github.png">
+                    <h2><u>Join Us!</u></h2>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+                ]
+            });
+        </script>
+    </body>
 </html>

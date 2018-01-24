@@ -1,0 +1,9 @@
+As kubernetes clusters take on more workloads, the need for persistent storage has only increased.  Users want to connect more storage 
+devices and use them efficiently.  Cinder has been solving this use case in Openstack for a long time and can be integrated with any 
+kubernetes cluster regardless of its cloud provider.  By deploying a standalone cinder service and a new external provisioner to a 
+cluster, pods can access almost any volume that cinder is able to provision.  Complex operations such as cloning, snapshots, and 
+migration become services of the cluster.  This presentation will describe and demonstrate a cinder external provisioner, enumerate 
+its advantages, discuss challenges especially around deployment, and propose collaboration opportunities between Openstack and 
+kubernetes.
+
+45 minutes
